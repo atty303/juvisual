@@ -4,3 +4,4 @@ app/distlib/
 bin/
 eggs/
 etc/
+var/
