@@ -1,0 +1,184 @@
+# -*- coding: utf-8; -*-
+
+import functools
+
+from google.appengine.ext import db
+
+# group by user
+# - play count
+# - last play date
+
+# group by level + total
+# - average score
+# - total best score
+# - rating EXC
+# - rating SSS
+# - rating SS
+# - rating S
+# - rating A
+# - rating B
+# - rating C
+# - rating PLAY (below C)
+
+# group by tune, level
+# - score
+# - last play date
+# - last update date
+# - rating
+# - full combo
+
+RATINGS = ['exc', 'sss', 'ss', 's', 'a', 'b', 'c', 'd', 'e', '']
+
+def rating_by_score(score):
+    if score >= 1000000:
+        return 'exc'
+    elif score >= 980000:
+        return 'sss'
+    elif score >= 950000:
+        return 'ss'
+    elif score >= 900000:
+        return 's'
+    elif score >= 850000:
+        return 'a'
+    elif score >= 800000:
+        return 'b'
+    elif score >= 700000:
+        return 'c'
+    elif score >= 500000:
+        return 'd'
+    elif score > 0:
+        return 'e'
+    return ''
+
+def dup_property_values(dst, src, props):
+    for p in props.split(' '):
+        setattr(dst, p, getattr(src, p))
+
+def run_by_level(func, with_all=False):
+    for l in ('bsc', 'adv', 'ext'):
+        func(l)
+    if with_all:
+        func('all')
+
+class Tune(db.Model):
+    tune_id = db.IntegerProperty(required=True)
+    title = db.StringProperty(required=True)
+    artist = db.StringProperty()
+    level_bas = db.IntegerProperty()
+    level_adv = db.IntegerProperty()
+    level_ext = db.IntegerProperty()
+
+    LIMIT = 1000
+    TUNES_DICT_CACHE = {}
+
+    @classmethod
+    def tunes_dict(cls):
+        if cls.TUNES_DICT_CACHE:
+            return TUNES_DICT_CACHE
+        d = {}
+        for t in Tune.all().fetch(Tune.LIMIT):
+            d[t.tune_id] = t
+        cls.TUNES_DICT_CACHE = d
+        return d
+
+class ScoreRevision(db.Model):
+    created_at = db.DateTimeProperty(auto_now_add=True)
+
+    score_bas = db.IntegerProperty()
+    score_adv = db.IntegerProperty()
+    score_ext = db.IntegerProperty()
+    score_all = db.IntegerProperty()
+
+    score_diff_bas = db.IntegerProperty()
+    score_diff_adv = db.IntegerProperty()
+    score_diff_ext = db.IntegerProperty()
+    score_diff_all = db.IntegerProperty()
+
+    @staticmethod
+    def latest_revision(keys_only=False):
+        # TODO: hold on memcache
+        return ScoreRevision.all(keys_only=keys_only).order('-created_at').get()
+
+    def regist_new_revision(self, tunes, scores):
+        current_revision_key = ScoreRevision.latest_revision(keys_only=True)
+        if current_revision_key:
+            current_scores = ScoreRecord.all().ancestor(current_revision_key).fetch(Tune.LIMIT)
+            current_score_dict = dict([(v['tune_id'], v) for v in current_scores])
+
+        tunes = Tune.tunes_dict()
+
+        new_entities = [self]
+
+        for s in scores:
+            t = tunes.get(s['tune_id'])
+            if not t:
+                continue
+            sr = ScoreRecord(t, parent=self)
+            cur = current_scores_dict[s['tune_id']]
+            sr.update_new_score(cur, s)
+            new_entities.append(sr)
+
+        def txn():
+            db.put(new_entities)
+        db.run_in_transaction(txn)
+
+class ScoreRecord(db.Model):
+    tune_id = db.IntegerProperty(required=True)
+    title = db.StringProperty(required=True)
+    artist = db.StringProperty()
+    level_bas = db.IntegerProperty()
+    level_adv = db.IntegerProperty()
+    level_ext = db.IntegerProperty()
+
+    score_bas = db.IntegerProperty()
+    score_adv = db.IntegerProperty()
+    score_ext = db.IntegerProperty()
+
+    fc_bas = db.BooleanProperty()
+    fc_adv = db.BooleanProperty()
+    fc_ext = db.BooleanProperty()
+
+    rating_bas = db.StringProperty(choices=RATINGS)
+    rating_adv = db.StringProperty(choices=RATINGS)
+    rating_ext = db.StringProperty(choices=RATINGS)
+
+    score_diff_bas = db.IntegerProperty()
+    score_diff_adv = db.IntegerProperty()
+    score_diff_ext = db.IntegerProperty()
+
+    last_play_date = db.DateTimeProperty()
+    last_update_date = db.DateTimeProperty()
+
+    def __init__(self, tune, **kwargs):
+        db.Model.__init__(self, **kwargs)
+        self.dup_tune(tune)
+
+    dup_tune = functools.partial(dup_property_values,
+                                 props='tune_id title artist level_bas level_adv level_ext')
+
+    def update_new_score(self, cur_sr, new_js):
+        # @run_by_level('score_%s', 'fc_%s', 'score_diff_%s')
+        # def a(score_attr, fc_attr, score_diff_attr):
+        #     setattr(self, score_attr, new_js[score_attr])
+        #     setattr(self, fc_attr, new_js[fc_attr])
+        #     setattr(self, score_diff_attr,
+        #             getattr(self, score_attr) - (getattr(cur, score_attr) if cur else 0))
+        # run_by_level(a)
+        self.score_bas = new_js['score_bas']
+        self.score_adv = new_js['score_adv']
+        self.score_ext = new_js['score_ext']
+        self.fc_bas = new_js['fc_bas']
+        self.fc_adv = new_js['fc_adv']
+        self.fc_ext = new_js['fc_ext']
+        self.rating_bas = rating_by_score(self.score_bas)
+        self.rating_adv = rating_by_score(self.score_adv)
+        self.rating_ext = rating_by_score(self.score_ext)
+        self.last_play_date = new_js['last_play_date']
+
+        self.score_diff_bas = self.score_bas - (cur.score_bas if cur else 0)
+        self.score_diff_adv = self.score_adv - (cur.score_adv if cur else 0)
+        self.score_diff_ext = self.score_ext - (cur.score_ext if cur else 0)
+        if self.score_diff_bas or self.score_diff_adv or self.score_diff_ext:
+            self.last_update_date = self.last_play_date
+        else:
+            self.last_update_date = cur.last_update_date
