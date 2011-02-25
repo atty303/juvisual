@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <title></title>
+    <style type="text/css">
+            h1 {
+                color: #0099FF;
+                font-family: 'trebuchet ms', trebuchet, arial, sans-serif;
+                font-size: 72px;
+                text-align: center;
+                margin-top: 24px;
+            }
+    </style>
+  </head>
+  <body>
+    <h1>{{ message|e }}</h1>
+
+  <ul>
+    {% for tune in tunes %}
+    <li>
+      <b>{{ tune.title }}</b>
+      {% if tune.artist %}
+        / {{ tune.artist }}
+      {% endif %}
+    </li>
+    {% endfor %}
+
+    <form action="/sign" method="post">
+      <div><textarea name="content" rows="3" cols="60"></textarea></div>
+      <div><input type="submit" value="Sign Guestbook"></div>
+    </form>
+  </ul>
+
+  </body>
+</html>
