@@ -21,6 +21,7 @@ def get_rules(app):
     """
     rules = [
         Rule('/', endpoint='main', handler='apps.juvisual.handlers.MainHandler'),
+        Rule('/regist', endpoint='regist', handler='apps.juvisual.handlers.RegistRecordHandler'),
     ]
 
     return rules

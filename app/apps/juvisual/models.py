@@ -74,7 +74,7 @@ class Tune(db.Model):
     @classmethod
     def tunes_dict(cls):
         if cls.TUNES_DICT_CACHE:
-            return TUNES_DICT_CACHE
+            return cls.TUNES_DICT_CACHE
         d = {}
         for t in Tune.all().fetch(Tune.LIMIT):
             d[t.tune_id] = t
@@ -82,6 +82,7 @@ class Tune(db.Model):
         return d
 
 class ScoreRevision(db.Model):
+    is_valid = db.BooleanProperty(required=True, default=False)
     created_at = db.DateTimeProperty(auto_now_add=True)
 
     score_bas = db.IntegerProperty()
@@ -97,34 +98,45 @@ class ScoreRevision(db.Model):
     @staticmethod
     def latest_revision(keys_only=False):
         # TODO: hold on memcache
-        return ScoreRevision.all(keys_only=keys_only).order('-created_at').get()
+        return ScoreRevision.all(keys_only=keys_only).filter('is_valid', True).order('-created_at').get()
 
-    def regist_new_revision(self, tunes, scores):
+    @staticmethod
+    def regist_new_revision(scores):
         current_revision_key = ScoreRevision.latest_revision(keys_only=True)
         if current_revision_key:
             current_scores = ScoreRecord.all().ancestor(current_revision_key).fetch(Tune.LIMIT)
-            current_score_dict = dict([(v['tune_id'], v) for v in current_scores])
+            current_scores_dict = dict([(v.tune_id, v) for v in current_scores])
+        else:
+            current_scores_dict = {}
 
         tunes = Tune.tunes_dict()
 
-        new_entities = [self]
+        new_revision = ScoreRevision()
+        new_revision.put()
+        try:
+            new_entities = [new_revision]
 
-        for s in scores:
-            t = tunes.get(s['tune_id'])
-            if not t:
-                continue
-            sr = ScoreRecord(t, parent=self)
-            cur = current_scores_dict[s['tune_id']]
-            sr.update_new_score(cur, s)
-            new_entities.append(sr)
+            for s in scores:
+                t = tunes.get(s['tune_id'])
+                if not t:
+                    continue
+                sr = ScoreRecord(parent=new_revision, tune_id=t.tune_id)
+                sr.dup_tune(t)
+                cur = current_scores_dict.get(s['tune_id'])
+                sr.update_new_score(cur, s)
+                new_entities.append(sr)
+            new_revision.is_valid = True
 
-        def txn():
-            db.put(new_entities)
-        db.run_in_transaction(txn)
+            def txn():
+                db.put(new_entities)
+            db.run_in_transaction(txn)
+        except Exception:
+            new_revision.delete()
+            raise
 
 class ScoreRecord(db.Model):
     tune_id = db.IntegerProperty(required=True)
-    title = db.StringProperty(required=True)
+    title = db.StringProperty()
     artist = db.StringProperty()
     level_bas = db.IntegerProperty()
     level_adv = db.IntegerProperty()
@@ -149,14 +161,21 @@ class ScoreRecord(db.Model):
     last_play_date = db.DateTimeProperty()
     last_update_date = db.DateTimeProperty()
 
-    def __init__(self, tune, **kwargs):
-        db.Model.__init__(self, **kwargs)
-        self.dup_tune(tune)
+    # def __init__(self, tune, **kwargs):
+    #     db.Model.__init__(self, **kwargs)
+    #     self.dup_tune(tune)
 
-    dup_tune = functools.partial(dup_property_values,
-                                 props='tune_id title artist level_bas level_adv level_ext')
+    # dup_tune = functools.partial(dup_property_values,
+    #                              props='tune_id title artist level_bas level_adv level_ext')
+    def dup_tune(self, tune):
+        self.tune_id = tune.tune_id
+        self.title = tune.title
+        self.artist = tune.artist
+        self.level_bas = tune.level_bas
+        self.level_adv = tune.level_adv
+        self.level_ext = tune.level_ext
 
-    def update_new_score(self, cur_sr, new_js):
+    def update_new_score(self, cur, new_js):
         # @run_by_level('score_%s', 'fc_%s', 'score_diff_%s')
         # def a(score_attr, fc_attr, score_diff_attr):
         #     setattr(self, score_attr, new_js[score_attr])
@@ -173,7 +192,7 @@ class ScoreRecord(db.Model):
         self.rating_bas = rating_by_score(self.score_bas)
         self.rating_adv = rating_by_score(self.score_adv)
         self.rating_ext = rating_by_score(self.score_ext)
-        self.last_play_date = new_js['last_play_date']
+        # self.last_play_date = new_js['last_play_date']
 
         self.score_diff_bas = self.score_bas - (cur.score_bas if cur else 0)
         self.score_diff_adv = self.score_adv - (cur.score_adv if cur else 0)

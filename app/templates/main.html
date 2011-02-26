@@ -17,6 +17,7 @@
   <ul>
     {% for tune in tunes %}
     <li>
+      [{{ tune.tune_id }}]
       <b>{{ tune.title }}</b>
       {% if tune.artist %}
         / {{ tune.artist }}
@@ -24,9 +25,9 @@
     </li>
     {% endfor %}
 
-    <form action="/sign" method="post">
-      <div><textarea name="content" rows="3" cols="60"></textarea></div>
-      <div><input type="submit" value="Sign Guestbook"></div>
+    <form method="post" action="/regist" enctype="multipart/form-data">
+      <input type="file" name="score_record_file">
+      <input type="submit" name="submit" value="submit">
     </form>
   </ul>
 
