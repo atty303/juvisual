@@ -173,6 +173,11 @@ class ScoreRecord(db.Model):
     ng_adv = db.BooleanProperty()
     ng_ext = db.BooleanProperty()
 
+    # ALL YELLOW
+    ay_bas = db.BooleanProperty()
+    ay_adv = db.BooleanProperty()
+    ay_ext = db.BooleanProperty()
+
     score_diff_bas = db.IntegerProperty()
     score_diff_adv = db.IntegerProperty()
     score_diff_ext = db.IntegerProperty()
@@ -238,3 +243,7 @@ class ScoreRecord(db.Model):
         self.ng_bas = MB_GREY not in self.mb_bas
         self.ng_adv = MB_GREY not in self.mb_adv
         self.ng_ext = MB_GREY not in self.mb_ext
+
+        self.ay_bas = (MB_GREY not in self.mb_bas) and (MB_BLUE not in self.mb_bas)
+        self.ay_adv = (MB_GREY not in self.mb_adv) and (MB_BLUE not in self.mb_adv)
+        self.ay_ext = (MB_GREY not in self.mb_ext) and (MB_BLUE not in self.mb_ext)
