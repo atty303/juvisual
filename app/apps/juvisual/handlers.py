@@ -19,7 +19,10 @@ class MainHandler(RequestHandler):
     def get(self):
         tunes = models.Tune.all().order('tune_id')
         latest_revision = models.ScoreRevision.latest_revision()
-        scores = latest_revision.query_score_records().fetch(models.Tune.LIMIT)
+        if latest_revision:
+            scores = latest_revision.query_score_records().fetch(models.Tune.LIMIT)
+        else:
+            scores = []
         return render_response('main.jinja', tunes=tunes, scores=scores)
 
 class RegistRecordHandler(RequestHandler):
