@@ -20,7 +20,8 @@ class MainHandler(RequestHandler):
         tunes = models.Tune.all().order('tune_id')
         latest_revision = models.ScoreRevision.latest_revision()
         if latest_revision:
-            scores = latest_revision.query_score_records().fetch(models.Tune.LIMIT)
+            q = latest_revision.query_score_records()
+            scores = q.order('title').fetch(models.Tune.LIMIT*len(models.LEVEL_KINDS))
         else:
             scores = []
         return render_response('main.jinja', tunes=tunes, scores=scores)
@@ -30,8 +31,6 @@ class RegistRecordHandler(RequestHandler):
         srfile = self.request.files.get('score_record_file')
         if srfile:
             records = simplejson.load(srfile)
-
-            new_revision = models.ScoreRevision()
-            new_revision.regist_new_revision(records)
+            models.ScoreRevision.regist_new_revision(records)
 
             return redirect_to('main')

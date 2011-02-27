@@ -15,15 +15,15 @@
           <th class="left"></th>
           <th class="title">{{ s.title }}</th>
           <td class="level">
-            <span class="level_bas level_{{ s.level_bas }}">
-              BASIC
-              {{ s.level_bas }}
+            <span class="level_{{ s.level_kind }} level_{{ s.level }}">
+              {{ s.level_kind }} ## FIXME: use fullname
+              {{ s.level }}
             </span>
           </td>
           <td class="top mb_holder">
             <div class="mb_holder">
               <div class="mb">
-                {% for c in s.mb_bas -%}
+                {% for c in s.mb -%}
                 {%- if c == 1 -%}
                 <span class="mbg"></span>
                 {%- elif c == 2 -%}
@@ -36,30 +36,30 @@
             </div>
           </td>
           <td class="top ind ind_ng">
-            {% if s.ng_bas %}
+            {% if s.ng %}
             <span class="ind_ng">NG</span>
             {% else %}
             <span class="ind_none">-</span>
             {% endif %}
           </td>
           <td class="top ind ind_fc">
-            {% if s.fc_bas %}
+            {% if s.fc %}
             <span class="ind_fc">FC</span>
             {% else %}
             <span class="ind_none">-</span>
             {% endif %}
           </td>
           <td class="top ind ind_ay">
-            {% if s.ay_bas %}
+            {% if s.ay %}
             <span class="ind_ay">AY</span>
             {% else %}
             <span class="ind_none">-</span>
             {% endif %}
           </td>
           <td class="top rating">
-            <span class="rating_{{ s.rating_bas }}">{{ s.rating_bas|upper }}</span>
+            <span class="rating_{{ s.rating }}">{{ s.rating|upper }}</span>
           </td>
-          <td class="top score">{{ s.score_bas }}</td>
+          <td class="top score">{{ s.score }}</td>
           <td class="top space"></td>
           <th class="right"></th>
         </tr>

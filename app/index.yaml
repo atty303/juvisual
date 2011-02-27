@@ -10,6 +10,17 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: ScoreRecord
+  ancestor: yes
+  properties:
+  - name: title
+
+- kind: ScoreRecord
+  ancestor: yes
+  properties:
+  - name: title
+  - name: level_kind
+
 - kind: ScoreRevision
   properties:
   - name: is_valid

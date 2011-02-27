@@ -33,6 +33,8 @@ MB_GREY = 1
 MB_BLUE = 2
 MB_YELLOW = 3
 
+LEVEL_KINDS = [ 'bas', 'adv', 'ext' ]
+
 RATINGS = ['exc', 'sss', 'ss', 's', 'a', 'b', 'c', 'd', 'e', '']
 
 def rating_by_score(score):
@@ -61,7 +63,7 @@ def dup_property_values(dst, src, props):
         setattr(dst, p, getattr(src, p))
 
 def run_by_level(func, with_all=False):
-    for l in ('bas', 'adv', 'ext'):
+    for l in LEVEL_KINDS:
         func(l)
     if with_all:
         func('all')
@@ -91,16 +93,6 @@ class ScoreRevision(db.Model):
     is_valid = db.BooleanProperty(required=True, default=False)
     created_at = db.DateTimeProperty(auto_now_add=True)
 
-    score_bas = db.IntegerProperty()
-    score_adv = db.IntegerProperty()
-    score_ext = db.IntegerProperty()
-    score_all = db.IntegerProperty()
-
-    score_diff_bas = db.IntegerProperty()
-    score_diff_adv = db.IntegerProperty()
-    score_diff_ext = db.IntegerProperty()
-    score_diff_all = db.IntegerProperty()
-
     @staticmethod
     def latest_revision(keys_only=False):
         # TODO: hold on memcache
@@ -108,34 +100,41 @@ class ScoreRevision(db.Model):
 
     @staticmethod
     def regist_new_revision(scores):
-        current_revision_key = ScoreRevision.latest_revision(keys_only=True)
-        if current_revision_key:
-            current_scores = ScoreRecord.all().ancestor(current_revision_key).fetch(Tune.LIMIT)
-            current_scores_dict = dict([(v.tune_id, v) for v in current_scores])
-        else:
-            current_scores_dict = {}
-
         tunes = Tune.tunes_dict()
+
+        current_revision_key = ScoreRevision.latest_revision(keys_only=True)
 
         new_revision = ScoreRevision()
         new_revision.put()
         try:
             new_entities = [new_revision]
 
-            for s in scores:
-                t = tunes.get(s['tune_id'])
-                if not t:
-                    continue
-                sr = ScoreRecord(parent=new_revision, tune_id=t.tune_id)
-                sr.dup_tune(t)
-                cur = current_scores_dict.get(s['tune_id'])
-                sr.update_new_score(cur, s)
-                new_entities.append(sr)
+            for lk in LEVEL_KINDS:
+                if current_revision_key:
+                    current_scores = ScoreRecord.all().ancestor(current_revision_key).filter('level_kind', lk).fetch(Tune.LIMIT)
+                    current_scores_dict = dict([(v.tune_id, v) for v in current_scores])
+                else:
+                    current_scores_dict = {}
+
+                # TODO: Tune を基点に scorerecord を引くようにする
+                for s in scores:
+                    t = tunes.get(s['tune_id'])
+                    if not t:
+                        continue
+                    sr = ScoreRecord(parent=new_revision,
+                                     tune_id=t.tune_id,
+                                     level_kind=lk)
+                    sr.dup_tune(t)
+                    cur = current_scores_dict.get(s['tune_id'])
+                    sr.update_new_score(cur, s)
+                    new_entities.append(sr)
+
             new_revision.is_valid = True
 
             def txn():
                 db.put(new_entities)
             db.run_in_transaction(txn)
+
         except Exception:
             new_revision.delete()
             raise
@@ -145,42 +144,20 @@ class ScoreRevision(db.Model):
 
 
 class ScoreRecord(db.Model):
+    level_kind = db.StringProperty(required=True, choices=LEVEL_KINDS)
     tune_id = db.IntegerProperty(required=True)
     title = db.StringProperty()
     artist = db.StringProperty()
-    level_bas = db.IntegerProperty()
-    level_adv = db.IntegerProperty()
-    level_ext = db.IntegerProperty()
 
-    score_bas = db.IntegerProperty()
-    score_adv = db.IntegerProperty()
-    score_ext = db.IntegerProperty()
+    level = db.IntegerProperty()
 
-    fc_bas = db.BooleanProperty()
-    fc_adv = db.BooleanProperty()
-    fc_ext = db.BooleanProperty()
-
-    rating_bas = db.StringProperty(choices=RATINGS)
-    rating_adv = db.StringProperty(choices=RATINGS)
-    rating_ext = db.StringProperty(choices=RATINGS)
-
-    mb_bas = db.ListProperty(int, indexed=False)
-    mb_adv = db.ListProperty(int, indexed=False)
-    mb_ext = db.ListProperty(int, indexed=False)
-
-    # NO GRAY
-    ng_bas = db.BooleanProperty()
-    ng_adv = db.BooleanProperty()
-    ng_ext = db.BooleanProperty()
-
-    # ALL YELLOW
-    ay_bas = db.BooleanProperty()
-    ay_adv = db.BooleanProperty()
-    ay_ext = db.BooleanProperty()
-
-    score_diff_bas = db.IntegerProperty()
-    score_diff_adv = db.IntegerProperty()
-    score_diff_ext = db.IntegerProperty()
+    score = db.IntegerProperty()
+    fc = db.BooleanProperty()
+    rating = db.StringProperty(choices=RATINGS)
+    mb = db.ListProperty(int, indexed=False)
+    ng = db.BooleanProperty()   # NO GRAY
+    ay = db.BooleanProperty()   # ALL YELLOW
+    score_diff = db.IntegerProperty()
 
     last_play_date = db.DateTimeProperty()
     last_update_date = db.DateTimeProperty()
@@ -189,40 +166,23 @@ class ScoreRecord(db.Model):
     #     db.Model.__init__(self, **kwargs)
     #     self.dup_tune(tune)
 
-    # dup_tune = functools.partial(dup_property_values,
-    #                              props='tune_id title artist level_bas level_adv level_ext')
     def dup_tune(self, tune):
         self.tune_id = tune.tune_id
         self.title = tune.title
         self.artist = tune.artist
-        self.level_bas = tune.level_bas
-        self.level_adv = tune.level_adv
-        self.level_ext = tune.level_ext
+        self.level = getattr(tune, 'level_'+self.level_kind)
 
     def update_new_score(self, cur, new_js):
-        # @run_by_level('score_%s', 'fc_%s', 'score_diff_%s')
-        # def a(score_attr, fc_attr, score_diff_attr):
-        #     setattr(self, score_attr, new_js[score_attr])
-        #     setattr(self, fc_attr, new_js[fc_attr])
-        #     setattr(self, score_diff_attr,
-        #             getattr(self, score_attr) - (getattr(cur, score_attr) if cur else 0))
-        # run_by_level(a)
-        self.score_bas = new_js['score_bas']
-        self.score_adv = new_js['score_adv']
-        self.score_ext = new_js['score_ext']
-        self.fc_bas = new_js['fc_bas']
-        self.fc_adv = new_js['fc_adv']
-        self.fc_ext = new_js['fc_ext']
-        self.rating_bas = rating_by_score(self.score_bas)
-        self.rating_adv = rating_by_score(self.score_adv)
-        self.rating_ext = rating_by_score(self.score_ext)
-        
+        lk = self.level_kind
+
+        self.score = new_js['score_'+lk]
+        self.fc = new_js['fc_'+lk]
+        self.rating = rating_by_score(self.score)
+
         self.last_play_date = datetime.datetime.strptime(new_js['last_play_date'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
 
-        self.score_diff_bas = self.score_bas - (cur.score_bas if cur else 0)
-        self.score_diff_adv = self.score_adv - (cur.score_adv if cur else 0)
-        self.score_diff_ext = self.score_ext - (cur.score_ext if cur else 0)
-        if self.score_diff_bas or self.score_diff_adv or self.score_diff_ext:
+        self.score_diff = self.score - (cur.score if cur else 0)
+        if self.score_diff:
             self.last_update_date = self.last_play_date
         else:
             self.last_update_date = cur.last_update_date
@@ -236,14 +196,7 @@ class ScoreRecord(db.Model):
                 l.append((b >> 6) & 3)
             return l
 
-        self.mb_bas = convert_mb(new_js['mb_bas'])
-        self.mb_adv = convert_mb(new_js['mb_adv'])
-        self.mb_ext = convert_mb(new_js['mb_ext'])
+        self.mb = convert_mb(new_js['mb_'+lk])
 
-        self.ng_bas = MB_GREY not in self.mb_bas
-        self.ng_adv = MB_GREY not in self.mb_adv
-        self.ng_ext = MB_GREY not in self.mb_ext
-
-        self.ay_bas = (MB_GREY not in self.mb_bas) and (MB_BLUE not in self.mb_bas)
-        self.ay_adv = (MB_GREY not in self.mb_adv) and (MB_BLUE not in self.mb_adv)
-        self.ay_ext = (MB_GREY not in self.mb_ext) and (MB_BLUE not in self.mb_ext)
+        self.ng = MB_GREY not in self.mb
+        self.ay = (MB_GREY not in self.mb) and (MB_BLUE not in self.mb)
