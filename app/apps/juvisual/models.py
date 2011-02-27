@@ -57,7 +57,7 @@ def dup_property_values(dst, src, props):
         setattr(dst, p, getattr(src, p))
 
 def run_by_level(func, with_all=False):
-    for l in ('bsc', 'adv', 'ext'):
+    for l in ('bas', 'adv', 'ext'):
         func(l)
     if with_all:
         func('all')

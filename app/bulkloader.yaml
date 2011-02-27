@@ -42,8 +42,8 @@ transformers:
       external_name: artist
       import_transform: transform.none_if_empty(unicode)
 
-    - property: level_bsc
-      external_name: level_bsc
+    - property: level_bas
+      external_name: level_bas
       import_transform: int
 
     - property: level_adv
@@ -53,3 +53,5 @@ transformers:
     - property: level_ext
       external_name: level_ext
       import_transform: int
+
+# bin/bulkloader --config_file=app/bulkloader.yaml --filename=app/data/tunes_master.csv --kind=Tune --url=http://localhost:8080/remote_api --application=juvisual
