@@ -57,11 +57,11 @@ table { border-collapse: collapse; }
 .mulist td.ind { width: 15px; padding: 4px 4px 29px 4px; text-indent: -99999px; }
 .mulist td.ind_ng { padding-left: 9px; }
 .mulist td.ind_fc { padding-right: 9px; }
-.mulist td.ind span { display: block; width: 15px; height: 15px; }
-.mulist td.ind span.ind_none { background: url(/static/images/ball_grey.png) no-repeat; }
-.mulist td.ind span.ind_ng { background: url(/static/images/ball_blue.png) no-repeat; }
-.mulist td.ind span.ind_ay { background: url(/static/images/ball_yellow.png) no-repeat; }
-.mulist td.ind span.ind_fc { background: url(/static/images/ball_green.png) no-repeat; }
+.mulist td.ind span { display: block; width: 15px; height: 15px; background: no-repeat; }
+.mulist td.ind span.ind_none { background-image: url(/static/images/ball_grey.png); }
+.mulist td.ind span.ind_ng { background-image: url(/static/images/ball_blue.png); }
+.mulist td.ind span.ind_ay { background-image: url(/static/images/ball_yellow.png); }
+.mulist td.ind span.ind_fc { background-image: url(/static/images/ball_green.png); }
 
 .mulist td.rating {
     width: 46px;

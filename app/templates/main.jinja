@@ -32,7 +32,13 @@
           </td>
           <td class="top ind ind_ng"><span class="ind_ng">NG</span></td>
           <td class="top ind ind_ay"><span class="ind_ay">AY</span></td>
-          <td class="top ind ind_fc"><span class="ind_fc">FC</span></td>
+          <td class="top ind ind_fc">
+            {% if s.fc_bas %}
+            <span class="ind_fc">FC</span>
+            {% else %}
+            <span class="ind_none">-</span>
+            {% endif %}
+          </td>
           <td class="top rating">
             <span class="rating_{{ s.rating_bas }}">{{ s.rating_bas|upper }}</span>
           </td>
