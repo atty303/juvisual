@@ -29,6 +29,10 @@ import pytz
 # - rating
 # - full combo
 
+MB_GREY = 1
+MB_BLUE = 2
+MB_YELLOW = 3
+
 RATINGS = ['exc', 'sss', 'ss', 's', 'a', 'b', 'c', 'd', 'e', '']
 
 def rating_by_score(score):
@@ -164,6 +168,11 @@ class ScoreRecord(db.Model):
     mb_adv = db.ListProperty(int, indexed=False)
     mb_ext = db.ListProperty(int, indexed=False)
 
+    # NO GRAY
+    ng_bas = db.BooleanProperty()
+    ng_adv = db.BooleanProperty()
+    ng_ext = db.BooleanProperty()
+
     score_diff_bas = db.IntegerProperty()
     score_diff_adv = db.IntegerProperty()
     score_diff_ext = db.IntegerProperty()
@@ -225,3 +234,7 @@ class ScoreRecord(db.Model):
         self.mb_bas = convert_mb(new_js['mb_bas'])
         self.mb_adv = convert_mb(new_js['mb_adv'])
         self.mb_ext = convert_mb(new_js['mb_ext'])
+
+        self.ng_bas = MB_GREY not in self.mb_bas
+        self.ng_adv = MB_GREY not in self.mb_adv
+        self.ng_ext = MB_GREY not in self.mb_ext
