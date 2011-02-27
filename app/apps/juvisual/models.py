@@ -30,7 +30,7 @@ import pytz
 # - full combo
 
 MB_NULL = '0'
-MB_GREY = '1'
+MB_GRAY = '1'
 MB_BLUE = '2'
 MB_YELLOW = '3'
 
@@ -153,11 +153,11 @@ class ScoreRecord(db.Model):
     level = db.IntegerProperty()
 
     score = db.IntegerProperty()
-    fc = db.BooleanProperty()
+    is_full_combo = db.BooleanProperty()
     rating = db.StringProperty(choices=RATINGS)
-    mb = db.StringProperty(indexed=False)
-    ng = db.BooleanProperty()   # NO GRAY
-    ay = db.BooleanProperty()   # ALL YELLOW
+    musicbar = db.StringProperty(indexed=False)
+    is_no_gray = db.BooleanProperty()
+    is_all_yellow = db.BooleanProperty()
     score_diff = db.IntegerProperty()
 
     last_play_date = db.DateTimeProperty()
@@ -177,7 +177,7 @@ class ScoreRecord(db.Model):
         lk = self.level_kind
 
         self.score = new_js['score_'+lk]
-        self.fc = new_js['fc_'+lk]
+        self.is_full_combo = new_js['fc_'+lk]
         self.rating = rating_by_score(self.score)
 
         self.last_play_date = datetime.datetime.strptime(new_js['last_play_date'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
@@ -200,7 +200,7 @@ class ScoreRecord(db.Model):
             else:
                 return ''.join(l)
 
-        self.mb = convert_mb(new_js['mb_'+lk])
-        if self.mb:
-            self.ng = MB_GREY not in self.mb
-            self.ay = (MB_GREY not in self.mb) and (MB_BLUE not in self.mb)
+        self.musicbar = convert_mb(new_js['mb_'+lk])
+        if self.musicbar:
+            self.is_no_gray = MB_GRAY not in self.musicbar
+            self.is_all_yellow = (MB_GRAY not in self.musicbar) and (MB_BLUE not in self.musicbar)
