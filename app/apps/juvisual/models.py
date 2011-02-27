@@ -29,9 +29,10 @@ import pytz
 # - rating
 # - full combo
 
-MB_GREY = 1
-MB_BLUE = 2
-MB_YELLOW = 3
+MB_NULL = '0'
+MB_GREY = '1'
+MB_BLUE = '2'
+MB_YELLOW = '3'
 
 LEVEL_KINDS = [ 'bas', 'adv', 'ext' ]
 
@@ -154,7 +155,7 @@ class ScoreRecord(db.Model):
     score = db.IntegerProperty()
     fc = db.BooleanProperty()
     rating = db.StringProperty(choices=RATINGS)
-    mb = db.ListProperty(int, indexed=False)
+    mb = db.StringProperty(indexed=False)
     ng = db.BooleanProperty()   # NO GRAY
     ay = db.BooleanProperty()   # ALL YELLOW
     score_diff = db.IntegerProperty()
@@ -190,13 +191,16 @@ class ScoreRecord(db.Model):
         def convert_mb(mb):
             l = []
             for b in [ord(c) for c in mb.decode('base64')]:
-                l.append(b & 3)
-                l.append((b >> 2) & 3)
-                l.append((b >> 4) & 3)
-                l.append((b >> 6) & 3)
-            return l
+                l.append(str(b & 3))
+                l.append(str((b >> 2) & 3))
+                l.append(str((b >> 4) & 3))
+                l.append(str((b >> 6) & 3))
+            if MB_NULL in l:
+                return ''
+            else:
+                return ''.join(l)
 
         self.mb = convert_mb(new_js['mb_'+lk])
-
-        self.ng = MB_GREY not in self.mb
-        self.ay = (MB_GREY not in self.mb) and (MB_BLUE not in self.mb)
+        if self.mb:
+            self.ng = MB_GREY not in self.mb
+            self.ay = (MB_GREY not in self.mb) and (MB_BLUE not in self.mb)
