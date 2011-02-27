@@ -19,11 +19,20 @@ table { border-collapse: collapse; }
 }
 
 .mulist td.level { padding: 0 0 10px 0; }
-.mulist td.level span {
-    display: block; width: 24px; height: 38px;
-    background: url(/static/images/level1.png) no-repeat;
-    text-indent: -99999px;
-}
+.mulist td.level span { display: block; width: 24px; height: 38px; text-indent: -99999px; }
+.mulist td.level span.level_bas { background: none -48px 0 no-repeat; }
+.mulist td.level span.level_adv { background: none -24px 0 no-repeat; }
+.mulist td.level span.level_ext { background: none 0 0 no-repeat; }
+.mulist td.level span.level_1 { background-image: url(/static/images/level1.png); }
+.mulist td.level span.level_2 { background-image: url(/static/images/level2.png); }
+.mulist td.level span.level_3 { background-image: url(/static/images/level3.png); }
+.mulist td.level span.level_4 { background-image: url(/static/images/level4.png); }
+.mulist td.level span.level_5 { background-image: url(/static/images/level5.png); }
+.mulist td.level span.level_6 { background-image: url(/static/images/level6.png); }
+.mulist td.level span.level_7 { background-image: url(/static/images/level7.png); }
+.mulist td.level span.level_8 { background-image: url(/static/images/level8.png); }
+.mulist td.level span.level_9 { background-image: url(/static/images/level9.png); }
+.mulist td.level span.level_10 { background-image: url(/static/images/level10.png); }
 
 .mulist td.top {
     padding: 1px 0 24px 0;
