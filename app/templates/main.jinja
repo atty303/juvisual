@@ -3,33 +3,46 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
   <head>
     <title></title>
+    <link rel="stylesheet" href="/static/base.css" type="text/css" media="screen" />
   </head>
   <body>
     <h1>{{ message|e }}</h1>
 
-    <table>
+    <table class="mulist">
       <tbody>
         {% for s in scores %}
         <tr>
-          <th>{{ s.title }}</th>
-          <td>{{ s.score_bas }}</td>
-          <td>{{ s.rating_bas }}</td>
-          <td>{{ s.fc_bas }}</td>
+          <th class="left"></th>
+          <th class="title">{{ s.title }}</th>
+          <td class="level"><div class="level1">{{ s.level_bas }}</div></td>
+          <td class="data">
+            <table class="mb"><tbody>
+              <tr class="detail">
+                <td class="ind ind_ng"><span class="ind_ng">NG</span></td>
+                <td class="ind ind_ay"><span class="ind_ay">AY</span></td>
+                <td class="ind ind_fc"><span class="ind_fc">FC</span></td>
+                <td class="rating"><span class="rating_exc">EXC</span></td>
+                <td class="score">{{ s.score_bas }}</td>
+                <td></td>
+              </tr>
+              <tr class="mb_notes"><td colspan="6">
+                {% for c in s.mb_bas -%}
+                {%- if c == 1 -%}
+                <span class="mbg"></span>
+                {%- elif c == 2 -%}
+                <span class="mbb"></span>
+                {%- elif c == 3 -%}
+                <span class="mby"></span>
+                {%- endif -%}
+                {%- endfor %}
+              </td></tr>
+            </tbody></table>
+          </td>
+          <th class="right"></th>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    <ul>
-      {% for tune in tunes %}
-      <li>
-        [{{ tune.tune_id }}]
-        <b>{{ tune.title }}</b>
-        {% if tune.artist %}
-        / {{ tune.artist }}
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
 
     <form method="post" action="/regist" enctype="multipart/form-data">
       <p>

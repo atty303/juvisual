@@ -1,8 +1,10 @@
 # -*- coding: utf-8; -*-
 
 import functools
+import datetime
 
 from google.appengine.ext import db
+import pytz
 
 # group by user
 # - play count
@@ -158,6 +160,10 @@ class ScoreRecord(db.Model):
     rating_adv = db.StringProperty(choices=RATINGS)
     rating_ext = db.StringProperty(choices=RATINGS)
 
+    mb_bas = db.ListProperty(int, indexed=False)
+    mb_adv = db.ListProperty(int, indexed=False)
+    mb_ext = db.ListProperty(int, indexed=False)
+
     score_diff_bas = db.IntegerProperty()
     score_diff_adv = db.IntegerProperty()
     score_diff_ext = db.IntegerProperty()
@@ -196,7 +202,8 @@ class ScoreRecord(db.Model):
         self.rating_bas = rating_by_score(self.score_bas)
         self.rating_adv = rating_by_score(self.score_adv)
         self.rating_ext = rating_by_score(self.score_ext)
-        # self.last_play_date = new_js['last_play_date']
+        
+        self.last_play_date = datetime.datetime.strptime(new_js['last_play_date'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
 
         self.score_diff_bas = self.score_bas - (cur.score_bas if cur else 0)
         self.score_diff_adv = self.score_adv - (cur.score_adv if cur else 0)
@@ -205,3 +212,16 @@ class ScoreRecord(db.Model):
             self.last_update_date = self.last_play_date
         else:
             self.last_update_date = cur.last_update_date
+
+        def convert_mb(mb):
+            l = []
+            for b in [ord(c) for c in mb.decode('base64')]:
+                l.append(b & 3)
+                l.append((b >> 2) & 3)
+                l.append((b >> 4) & 3)
+                l.append((b >> 6) & 3)
+            return l
+
+        self.mb_bas = convert_mb(new_js['mb_bas'])
+        self.mb_adv = convert_mb(new_js['mb_adv'])
+        self.mb_ext = convert_mb(new_js['mb_ext'])

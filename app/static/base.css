@@ -1,0 +1,66 @@
+
+ /* body { background-color: #DDD; } */
+
+table { border-collapse: collapse; }
+
+.mulist > tbody > tr {
+    height: 48px;
+}
+.mulist > tbody > tr > th, .mulist > tbody > tr > td {
+    padding: 1px 0 11px 0;
+    vertical-align: middle;
+    background: url(/static/images/row_bg_cw.png) repeat-x;
+}
+.mulist th.left  { width: 9px; background: url(/static/images/row_bg_l.png) no-repeat; }
+.mulist th.right { width: 9px; background: url(/static/images/row_bg_r.png) no-repeat; }
+.mulist th.title {
+    text-align: left;
+    padding-left: 5px; padding-right: 5px;
+    font-size: 12px;
+    width: 280px;
+}
+.mulist td.level { padding: 0 0 10px 0; }
+.mulist td.level div {
+    text-indent: -99999px;
+    width: 24px;
+    height: 38px;
+    background: url(/static/images/level1.png) no-repeat;
+}
+.mulist td.data {
+    background: url(/static/images/row_bg_cb.png) repeat-x;
+}
+
+table.mb { width: 612px; color: white; }
+.mb tr.detail {
+    height: 23px;
+}
+.mb td.ind { width: 15px; padding: 4px; text-indent: -99999px; }
+.mb td.ind_ng { padding-left: 9px; }
+.mb td.ind_fc { padding-right: 9px; }
+.mb td.ind span { display: block; width: 15px; height: 15px; }
+.mb td.ind span.ind_none { background: url(/static/images/ball_grey.png) no-repeat; }
+.mb td.ind span.ind_ng { background: url(/static/images/ball_blue.png) no-repeat; }
+.mb td.ind span.ind_ay { background: url(/static/images/ball_yellow.png) no-repeat; }
+.mb td.ind span.ind_fc { background: url(/static/images/ball_green.png) no-repeat; }
+
+.mb td.rating {
+    width: 46px;
+    background: url(/static/images/row_bg_sep.png) no-repeat;
+    text-indent: -99999px;
+}
+.mb td.rating span { display: block; width: 44px; height: 15px; }
+.mb td.rating span.rating_exc { background: url(/static/images/rating_exc.png) no-repeat; }
+
+.mb td.score { font-size: 14px; font-weight: bold; }
+
+.mb tr.mb_notes {
+    height: 13px;
+    padding: 4px 0;
+    text-align: center;
+}
+.mb tr.mb_notes td { padding: 0 0 0 0; }
+.mb tr.mb_notes span { display: inline-block; width: 5px; height: 5px; }
+.mb tr.mb_notes span.mby { background: url(/static/images/mb_y.png); }
+.mb tr.mb_notes span.mbb { background: url(/static/images/mb_b.png); }
+.mb tr.mb_notes span.mbg { background: url(/static/images/mb_g.png); }
+
