@@ -59,16 +59,6 @@ def rating_by_score(score):
         return 'e'
     return ''
 
-def dup_property_values(dst, src, props):
-    for p in props.split(' '):
-        setattr(dst, p, getattr(src, p))
-
-def run_by_level(func, with_all=False):
-    for l in LEVEL_KINDS:
-        func(l)
-    if with_all:
-        func('all')
-
 class Tune(db.Model):
     tune_id = db.IntegerProperty(required=True)
     title = db.StringProperty(required=True)
