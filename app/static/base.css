@@ -3,64 +3,70 @@
 
 table { border-collapse: collapse; }
 
-.mulist > tbody > tr {
-    height: 48px;
-}
-.mulist > tbody > tr > th, .mulist > tbody > tr > td {
-    padding: 1px 0 11px 0;
-    vertical-align: middle;
+.mulist tr { height: 48px;/*img-height:43px + padding:5px*/ }
+.mulist th, .mulist td {
+    padding: 1px/*img-border-top:1px*/ 0 11px/*img-bottom-border:6px + padding:5px*/ 0; 
     background: url(/static/images/row_bg_cw.png) repeat-x;
+    vertical-align: middle;
 }
 .mulist th.left  { width: 9px; background: url(/static/images/row_bg_l.png) no-repeat; }
 .mulist th.right { width: 9px; background: url(/static/images/row_bg_r.png) no-repeat; }
 .mulist th.title {
-    text-align: left;
+    width: 280px;
     padding-left: 5px; padding-right: 5px;
     font-size: 12px;
-    width: 280px;
+    text-align: left;
 }
+
 .mulist td.level { padding: 0 0 10px 0; }
-.mulist td.level div {
-    text-indent: -99999px;
-    width: 24px;
-    height: 38px;
+.mulist td.level span {
+    display: block; width: 24px; height: 38px;
     background: url(/static/images/level1.png) no-repeat;
+    text-indent: -99999px;
 }
-.mulist td.data {
+
+.mulist td.top {
+    padding: 1px 0 24px 0;
     background: url(/static/images/row_bg_cb.png) repeat-x;
 }
 
-table.mb { width: 612px; color: white; }
-.mb tr.detail {
-    height: 23px;
+.mulist td.mb_holder { padding: 0; }
+.mulist div.mb_holder { position: relative; padding: 0; height: 48px; }
+.mulist div.mb_holder div.mb {
+    position: absolute;
+    top: 28px; left: 0;
+    width: 612px;
+    height: 5px;
+    padding: 0;
+    text-align: center;
 }
-.mb td.ind { width: 15px; padding: 4px; text-indent: -99999px; }
-.mb td.ind_ng { padding-left: 9px; }
-.mb td.ind_fc { padding-right: 9px; }
-.mb td.ind span { display: block; width: 15px; height: 15px; }
-.mb td.ind span.ind_none { background: url(/static/images/ball_grey.png) no-repeat; }
-.mb td.ind span.ind_ng { background: url(/static/images/ball_blue.png) no-repeat; }
-.mb td.ind span.ind_ay { background: url(/static/images/ball_yellow.png) no-repeat; }
-.mb td.ind span.ind_fc { background: url(/static/images/ball_green.png) no-repeat; }
+.mulist div.mb span { display: inline-block; width: 5px; height: 5px; }
+.mulist div.mb span.mby { background: url(/static/images/mb_y.png); }
+.mulist div.mb span.mbb { background: url(/static/images/mb_b.png); }
+.mulist div.mb span.mbg { background: url(/static/images/mb_g.png); }
 
-.mb td.rating {
+.mulist td.ind { width: 15px; padding: 4px 4px 29px 4px; text-indent: -99999px; }
+.mulist td.ind_ng { padding-left: 9px; }
+.mulist td.ind_fc { padding-right: 9px; }
+.mulist td.ind span { display: block; width: 15px; height: 15px; }
+.mulist td.ind span.ind_none { background: url(/static/images/ball_grey.png) no-repeat; }
+.mulist td.ind span.ind_ng { background: url(/static/images/ball_blue.png) no-repeat; }
+.mulist td.ind span.ind_ay { background: url(/static/images/ball_yellow.png) no-repeat; }
+.mulist td.ind span.ind_fc { background: url(/static/images/ball_green.png) no-repeat; }
+
+.mulist td.rating {
     width: 46px;
     background: url(/static/images/row_bg_sep.png) no-repeat;
     text-indent: -99999px;
 }
-.mb td.rating span { display: block; width: 44px; height: 15px; }
-.mb td.rating span.rating_exc { background: url(/static/images/rating_exc.png) no-repeat; }
+.mulist td.rating span { display: block; width: 44px; height: 23px; padding-left: 2px; }
+.mulist td.rating span.rating_exc { background: url(/static/images/rating_exc.png) no-repeat; }
 
-.mb td.score { font-size: 14px; font-weight: bold; }
-
-.mb tr.mb_notes {
-    height: 13px;
-    padding: 4px 0;
-    text-align: center;
+.mulist td.score {
+    width: 80px;
+    background: url(/static/images/row_bg_sep.png) no-repeat;
+    font-size: 14px; font-weight: bold; color: white;
+    text-align: right;
 }
-.mb tr.mb_notes td { padding: 0 0 0 0; }
-.mb tr.mb_notes span { display: inline-block; width: 5px; height: 5px; }
-.mb tr.mb_notes span.mby { background: url(/static/images/mb_y.png); }
-.mb tr.mb_notes span.mbb { background: url(/static/images/mb_b.png); }
-.mb tr.mb_notes span.mbg { background: url(/static/images/mb_g.png); }
 
+.mulist td.space { width: 400px; }
