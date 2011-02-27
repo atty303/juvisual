@@ -87,47 +87,50 @@ class ScoreRevision(db.Model):
     @staticmethod
     def latest_revision(keys_only=False):
         # TODO: hold on memcache
-        return ScoreRevision.all(keys_only=keys_only).filter('is_valid', True).order('-created_at').get()
+        q = ScoreRevision.all(keys_only=keys_only).filter('is_valid', True)
+        q = q.order('-created_at')
+        return q.get()
 
     @staticmethod
     def regist_new_revision(scores):
         tunes = Tune.tunes_dict()
 
-        current_revision_key = ScoreRevision.latest_revision(keys_only=True)
+        cur_rev_key = ScoreRevision.latest_revision(keys_only=True)
 
-        new_revision = ScoreRevision()
-        new_revision.put()
+        new_rev = ScoreRevision()
+        new_rev.put()
         try:
-            new_entities = [new_revision]
+            new_entities = [new_rev]
 
             for lk in LEVEL_KINDS:
-                if current_revision_key:
-                    current_scores = ScoreRecord.all().ancestor(current_revision_key).filter('level_kind', lk).fetch(Tune.LIMIT)
-                    current_scores_dict = dict([(v.tune_id, v) for v in current_scores])
+                if cur_rev_key:
+                    q = ScoreRecord.all().ancestor(cur_rev_key).filter('level_kind', lk)
+                    cur_scores = q.fetch(Tune.LIMIT)
+                    cur_scores_dict = dict([(v.tune_id, v) for v in cur_scores])
                 else:
-                    current_scores_dict = {}
+                    cur_scores_dict = {}
 
                 # TODO: Tune を基点に scorerecord を引くようにする
                 for s in scores:
                     t = tunes.get(s['tune_id'])
                     if not t:
                         continue
-                    sr = ScoreRecord(parent=new_revision,
+                    sr = ScoreRecord(parent=new_rev,
                                      tune_id=t.tune_id,
                                      level_kind=lk)
                     sr.dup_tune(t)
-                    cur = current_scores_dict.get(s['tune_id'])
+                    cur = cur_scores_dict.get(s['tune_id'])
                     sr.update_new_score(cur, s)
                     new_entities.append(sr)
 
-            new_revision.is_valid = True
+            new_rev.is_valid = True
 
             def txn():
                 db.put(new_entities)
             db.run_in_transaction(txn)
 
         except Exception:
-            new_revision.delete()
+            new_rev.delete()
             raise
 
     def query_score_records(self):
@@ -152,10 +155,6 @@ class ScoreRecord(db.Model):
 
     last_play_date = db.DateTimeProperty()
     last_update_date = db.DateTimeProperty()
-
-    # def __init__(self, tune, **kwargs):
-    #     db.Model.__init__(self, **kwargs)
-    #     self.dup_tune(tune)
 
     def dup_tune(self, tune):
         self.tune_id = tune.tune_id
