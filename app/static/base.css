@@ -61,6 +61,14 @@ table { border-collapse: collapse; }
 }
 .mulist td.rating span { display: block; width: 44px; height: 23px; padding-left: 2px; }
 .mulist td.rating span.rating_exc { background: url(/static/images/rating_exc.png) no-repeat; }
+.mulist td.rating span.rating_sss { background: url(/static/images/rating_sss.png) no-repeat; }
+.mulist td.rating span.rating_ss { background: url(/static/images/rating_ss.png) no-repeat; }
+.mulist td.rating span.rating_s { background: url(/static/images/rating_s.png) no-repeat; }
+.mulist td.rating span.rating_a { background: url(/static/images/rating_a.png) no-repeat; }
+.mulist td.rating span.rating_b { background: url(/static/images/rating_b.png) no-repeat; }
+.mulist td.rating span.rating_c { background: url(/static/images/rating_c.png) no-repeat; }
+.mulist td.rating span.rating_d { background: url(/static/images/rating_d.png) no-repeat; }
+.mulist td.rating span.rating_e { background: url(/static/images/rating_e.png) no-repeat; }
 
 .mulist td.score {
     width: 80px;
