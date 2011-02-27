@@ -18,7 +18,9 @@ from . import models
 class MainHandler(RequestHandler):
     def get(self):
         tunes = models.Tune.all().order('tune_id')
-        return render_response('main.html', tunes=tunes)
+        latest_revision = models.ScoreRevision.latest_revision()
+        scores = latest_revision.query_score_records().fetch(models.Tune.LIMIT)
+        return render_response('main.jinja', tunes=tunes, scores=scores)
 
 class RegistRecordHandler(RequestHandler):
     def post(self):

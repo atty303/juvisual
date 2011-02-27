@@ -134,6 +134,10 @@ class ScoreRevision(db.Model):
             new_revision.delete()
             raise
 
+    def query_score_records(self):
+        return ScoreRecord.all().ancestor(self)
+
+
 class ScoreRecord(db.Model):
     tune_id = db.IntegerProperty(required=True)
     title = db.StringProperty()
