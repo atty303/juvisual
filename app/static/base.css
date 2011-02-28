@@ -10,12 +10,12 @@ table { border-collapse: collapse; }
     background: url(/static/images/row_bg_cw.png) repeat-x;
     vertical-align: middle;
 }
-.mulist th.left  { width: 9px; background: url(/static/images/row_bg_l.png) no-repeat; }
-.mulist th.right { width: 9px; background: url(/static/images/row_bg_r.png) no-repeat; }
-.mulist th.title {
+.mulist td.left  { width: 9px; background: url(/static/images/row_bg_l.png) no-repeat; }
+.mulist td.right { width: 9px; background: url(/static/images/row_bg_r.png) no-repeat; }
+.mulist td.title {
     width: 280px;
     padding-left: 5px; padding-right: 5px;
-    font-size: 12px;
+    font-size: 12px; font-weight: bold;
     text-align: left;
 }
 

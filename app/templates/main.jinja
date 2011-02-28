@@ -28,8 +28,8 @@
       <tbody>
         {% for s in scores %}
         <tr>
-          <th class="left"></th>
-          <th class="title">{{ s.title }}</th>
+          <td class="left"></td>
+          <td class="title">{{ s.title }}</td>
           <td class="level">
             <span class="level_{{ s.level_kind }} level_{{ s.level }}">
               {{ s.level_kind|upper }}
@@ -78,7 +78,7 @@
           <td class="top score">{{ s.score if s.is_played }}</td>
           <td class="top space"></td>
           <td class="top last_update_date">{{ s.last_update_date.strftime('%Y-%m-%d') if s.is_played }}</td>
-          <th class="right"></th>
+          <td class="right"></td>
         </tr>
         {% endfor %}
       </tbody>
