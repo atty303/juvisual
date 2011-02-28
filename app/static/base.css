@@ -3,6 +3,7 @@
 
 table { border-collapse: collapse; }
 
+.mulist thead { display: none; }
 .mulist tr { height: 48px;/*img-height:43px + padding:5px*/ }
 .mulist th, .mulist td {
     padding: 1px/*img-border-top:1px*/ 0 11px/*img-bottom-border:6px + padding:5px*/ 0; 

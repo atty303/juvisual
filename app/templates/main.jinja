@@ -9,6 +9,22 @@
     <h1>{{ message|e }}</h1>
 
     <table class="mulist">
+      <thead>
+        <tr>
+          <th><!-- left cap --></th>
+          <th>Title</th>
+          <th>Level</th>
+          <th><!-- music bar --></th>
+          <th>No Gray</th>
+          <th>Full Combo</th>
+          <th>All Yellow</th>
+          <th>Rating</th>
+          <th>Best Score</th>
+          <th><!-- space --></th>
+          <th>Last Updated</th>
+          <th><!-- right cap --></th>
+        </tr>
+      </thead>
       <tbody>
         {% for s in scores %}
         <tr>
