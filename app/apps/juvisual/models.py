@@ -182,7 +182,7 @@ class ScoreRecord(db.Model):
         if self.score_diff:
             self.last_update_date = self.last_play_date
         else:
-            self.last_update_date = cur.last_update_date
+            self.last_update_date = cur.last_update_date if cur else None
 
         def convert_mb(mb):
             l = []

@@ -61,6 +61,7 @@
           </td>
           <td class="top score">{{ s.score if s.is_played }}</td>
           <td class="top space"></td>
+          <td class="top last_update_date">{{ s.last_update_date.strftime('%Y-%m-%d') if s.is_played }}</td>
           <th class="right"></th>
         </tr>
         {% endfor %}
