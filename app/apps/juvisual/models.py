@@ -145,6 +145,7 @@ class ScoreRecord(db.Model):
 
     level = db.IntegerProperty()
 
+    is_played = db.BooleanProperty()
     score = db.IntegerProperty()
     is_full_combo = db.BooleanProperty()
     rating = db.StringProperty(choices=RATINGS)
@@ -166,6 +167,12 @@ class ScoreRecord(db.Model):
         lk = self.level_kind
 
         self.score = new_js['score_'+lk]
+        if self.score < 0:
+            self.score = 0
+            self.is_played = False
+        else:
+            self.is_played = True
+
         self.is_full_combo = new_js['fc_'+lk]
         self.rating = rating_by_score(self.score)
 

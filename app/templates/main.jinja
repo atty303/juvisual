@@ -59,7 +59,7 @@
           <td class="top rating">
             <span class="rating_{{ s.rating }}">{{ s.rating|upper }}</span>
           </td>
-          <td class="top score">{{ s.score }}</td>
+          <td class="top score">{{ s.score if s.is_played }}</td>
           <td class="top space"></td>
           <th class="right"></th>
         </tr>
