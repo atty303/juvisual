@@ -87,10 +87,19 @@ table { border-collapse: collapse; }
     text-align: right;
 }
 
-.mulist td.space { width: 320px; }
+.mulist td.space { width: 270px; }
+
+.mulist td.play_count {
+    width: 30px;
+    padding-left: 5px; padding-right: 5px;
+    background: url(/static/images/row_bg_sep.png) no-repeat;
+    font-size: 12px; color: #aaa;
+    text-align: center;
+}
 
 .mulist td.last_update_date {
     width: 80px;
+    padding-left: 5px; padding-right: 5px;
     background: url(/static/images/row_bg_sep.png) no-repeat;
     font-size: 12px; color: #aaa;
     text-align: right;

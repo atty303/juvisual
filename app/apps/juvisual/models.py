@@ -154,6 +154,7 @@ class ScoreRecord(db.Model):
     is_all_yellow = db.BooleanProperty()
     score_diff = db.IntegerProperty()
 
+    play_count = db.IntegerProperty()
     last_play_date = db.DateTimeProperty()
     last_update_date = db.DateTimeProperty()
 
@@ -176,6 +177,7 @@ class ScoreRecord(db.Model):
         self.is_full_combo = new_js['fc_'+lk]
         self.rating = rating_by_score(self.score)
 
+        self.play_count = new_js['play_count']
         self.last_play_date = datetime.datetime.strptime(new_js['last_play_date'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
 
         self.score_diff = self.score - (cur.score if cur else 0)
